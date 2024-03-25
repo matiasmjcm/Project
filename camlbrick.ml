@@ -54,6 +54,19 @@ type t_camlbrick_param = {
   time_speed : int ref; (** indique l'écoulement du temps en millisecondes (c'est une durée approximative) *)
 };;
 
+let default_camlbrick_param : t_camlbrick_param = {
+  world_width = 800;
+  world_bricks_height = 600;
+  world_empty_height = 200;
+  brick_width = 40;
+  brick_height = 20;
+  paddle_init_width = 100;
+  paddle_init_height = 20;
+  time_speed = ref 20;
+}
+(** @author CASTRO Matias **)
+
+
 (** Enumeration des différents types de briques. 
   Vous ne devez pas modifier ce type.    
 *)
@@ -125,10 +138,13 @@ let make_vec2(x,y : int * int) : t_vec2 =
   @param a premier vecteur
   @param b second vecteur
   @return Renvoie un vecteur égale à la somme des vecteurs.
+  @author CASTRO Matias
 *)
 let vec2_add(a,b : t_vec2 * t_vec2) : t_vec2 =
   (* Itération 1 *)
-  ()
+  let x1, y1 = a in
+  let x2, y2 = b in
+  (x1 + x2, y1 + y2)
 ;;
 
 (**
@@ -146,10 +162,12 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @param x composante en x du second vecteur
   @param y composante en y du second vecteur
   @return Renvoie un vecteur qui est la résultante du vecteur 
+  @author CASTRO Matias
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
-  ()
+  let x1, y1 = a in
+  (x1 + x, y1 + y)
 ;;
 
 
@@ -164,10 +182,13 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @param a premier vecteur
   @param b second vecteur
   @return Renvoie un vecteur qui résulte de la multiplication des composantes. 
+  @author CASTRO Matias
 *)
 let vec2_mult(a,b : t_vec2 * t_vec2) : t_vec2 = 
   (* Itération 1 *)
-  ()
+  let x1, y1 = a in
+  let x2, y2 = b in
+  (x1 * x2, y1 * y2)
 ;;
 
 (**
@@ -179,10 +200,12 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 ;;
   ]}
     
+  @author CASTRO Matias
 *)
 let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
-  ()
+  let x1, y1 = a in
+  (x1 * x, y1 * y)
 ;;
 
 
