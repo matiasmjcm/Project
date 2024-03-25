@@ -116,7 +116,7 @@ type t_gamestate = GAMEOVER | PLAYING | PAUSING;;
 
 
 (* Itération 1 *)
-type t_vec2 = unit;;
+type t_vec2 = int * int;;
 
 
 (**
@@ -130,7 +130,7 @@ type t_vec2 = unit;;
 *)
 let make_vec2(x,y : int * int) : t_vec2 = 
   (* Itération 1 *)
-  ()
+  (x, y)
 ;;
 
 (**
