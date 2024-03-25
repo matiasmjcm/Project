@@ -1,5 +1,5 @@
 # Project
 
-# Laissez vos numéros pour créer un groupe WhatsApp, il me semble que j'ai mal copié le numéro.
-
-Enzo BENNEGENT: 07 69 44 08 28
+"À faire :
+- Effectuer les tests des fonctions décrites dans le point 3.1.
+- Mettre en œuvre le point 3.2."
