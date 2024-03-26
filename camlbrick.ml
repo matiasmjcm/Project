@@ -16,8 +16,8 @@ en utilisant les rebonds d'une balle depuis une raquette contrôlée par l'utili
 *)
 
 (** Compteur utilisé en interne pour afficher le numéro de la frame du jeu vidéo. 
-    Vous pouvez utiliser cette variable en lecture, mais nous ne devez pas modifier
-    sa valeur! *)
+Vous pouvez utiliser cette variable en lecture, mais nous ne devez pas modifier
+sa valeur! *)
 let frames = ref 0;;
 
 (**
@@ -53,19 +53,6 @@ type t_camlbrick_param = {
 
   time_speed : int ref; (** indique l'écoulement du temps en millisecondes (c'est une durée approximative) *)
 };;
-
-let default_camlbrick_param : t_camlbrick_param = {
-  world_width = 800;
-  world_bricks_height = 600;
-  world_empty_height = 200;
-  brick_width = 40;
-  brick_height = 20;
-  paddle_init_width = 100;
-  paddle_init_height = 20;
-  time_speed = ref 20;
-}
-(** @author CASTRO Matias **)
-
 
 (** Enumeration des différents types de briques. 
   Vous ne devez pas modifier ce type.    
@@ -116,7 +103,13 @@ type t_gamestate = GAMEOVER | PLAYING | PAUSING;;
 
 
 (* Itération 1 *)
-type t_vec2 = int * int;;
+(** 
+  @author CASTRO MATIAS 
+*)
+type t_vec2 = {
+  x : int; (** Composante en x du vecteur *)
+  y : int; (** Composante en y du vecteur *)
+};;
 
 
 (**
@@ -128,9 +121,12 @@ type t_vec2 = int * int;;
   @param y seconde composante du vecteur
   @return Renvoie le vecteur dont les composantes sont (x,y).
 *)
+(** 
+  @author CASTRO MATIAS 
+*)
 let make_vec2(x,y : int * int) : t_vec2 = 
   (* Itération 1 *)
-  (x, y)
+  { x = x; y = y }
 ;;
 
 (**
@@ -138,13 +134,13 @@ let make_vec2(x,y : int * int) : t_vec2 =
   @param a premier vecteur
   @param b second vecteur
   @return Renvoie un vecteur égale à la somme des vecteurs.
-  @author CASTRO Matias
+*)
+(** 
+  @author CASTRO MATIAS 
 *)
 let vec2_add(a,b : t_vec2 * t_vec2) : t_vec2 =
   (* Itération 1 *)
-  let x1, y1 = a in
-  let x2, y2 = b in
-  (x1 + x2, y1 + y2)
+  { x = a.x + b.x; y = a.y + b.y }
 ;;
 
 (**
@@ -162,12 +158,18 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @param x composante en x du second vecteur
   @param y composante en y du second vecteur
   @return Renvoie un vecteur qui est la résultante du vecteur 
-  @author CASTRO Matias
+*)
+(** 
+  @author CASTRO MATIAS 
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
-  (* Itération 1 *)
-  let x1, y1 = a in
-  (x1 + x, y1 + y)
+  (* Itération 1, *)
+  (* Création du vecteur à partir de (x, y) *)
+  let scalar_vector = { x = x; y = y } in
+  (* Addition des composantes *)
+  let result_x = a.x + scalar_vector.x in
+  let result_y = a.y + scalar_vector.y in
+  { x = result_x; y = result_y }
 ;;
 
 
@@ -182,13 +184,13 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @param a premier vecteur
   @param b second vecteur
   @return Renvoie un vecteur qui résulte de la multiplication des composantes. 
-  @author CASTRO Matias
+*)
+(** 
+  @author CASTRO MATIAS 
 *)
 let vec2_mult(a,b : t_vec2 * t_vec2) : t_vec2 = 
   (* Itération 1 *)
-  let x1, y1 = a in
-  let x2, y2 = b in
-  (x1 * x2, y1 * y2)
+  { x = a.x * b.x; y = a.y * b.y }
 ;;
 
 (**
@@ -200,12 +202,18 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 ;;
   ]}
     
-  @author CASTRO Matias
+*)
+(** 
+  @author CASTRO MATIAS 
 *)
 let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
-  let x1, y1 = a in
-  (x1 * x, y1 * y)
+  (* Création du vecteur à partir de (x, y) *)
+  let scalar_vector = { x = x; y = y } in
+  (* Multiplication des composantes *)
+  let result_x = a.x * scalar_vector.x in
+  let result_y = a.y * scalar_vector.y in
+  { x = result_x; y = result_y }
 ;;
 
 
@@ -218,8 +226,11 @@ type t_paddle = unit;;
 
 
 (* Itération 1, 2, 3 et 4 *)
-type t_camlbrick = unit
-;;
+(** 
+  @author CASTRO MATIAS 
+*)
+type t_camlbrick = { mutable param : t_camlbrick_param; (** Paramètres du jeu *)
+                      state : t_gamestate;};;
 
 
 (**
@@ -228,17 +239,17 @@ type t_camlbrick = unit
   @return Renvoie un paramétrage de jeu par défaut      
 *)
 let make_camlbrick_param() : t_camlbrick_param = {
-   world_width = 800;
-   world_bricks_height = 600;
-   world_empty_height = 200;
+  world_width = 800;
+  world_bricks_height = 600;
+  world_empty_height = 200;
 
-   brick_width = 40;
-   brick_height = 20;
+  brick_width = 40;
+  brick_height = 20;
 
-   paddle_init_width = 100;
-   paddle_init_height = 20;
+  paddle_init_width = 100;
+  paddle_init_height = 20;
 
-   time_speed = ref 20;
+  time_speed = ref 20;
 }
 ;;
 
@@ -248,6 +259,9 @@ let make_camlbrick_param() : t_camlbrick_param = {
   @param game jeu en cours d'exécution.
   @return Renvoie le paramétrage actuel.
   *)
+(** 
+  @author CASTRO MATIAS 
+*)
 let param_get(game : t_camlbrick) : t_camlbrick_param =
   (* Itération 1 *)
   make_camlbrick_param()
@@ -258,9 +272,15 @@ let param_get(game : t_camlbrick) : t_camlbrick_param =
   Une raquette par défaut et une balle par défaut dans la zone libre.
   @return Renvoie un jeu correctement initialisé
 *)
+(** 
+  @author CASTRO MATIAS 
+*)
 let make_camlbrick() : t_camlbrick = 
   (* Itération 1, 2, 3 et 4 *)
-  ()
+  let params = make_camlbrick_param () in (* Crée les paramètres du jeu *)
+  {
+    param = params; (* Initialise les paramètres du jeu *)
+  }
 ;;
 
 
@@ -270,14 +290,13 @@ let make_camlbrick() : t_camlbrick =
 *)
 let make_paddle() : t_paddle =
   (* Itération 2 *)
- ()
+  ()
 ;;
 
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
   ()
 ;;
-
 
 
 
@@ -290,26 +309,59 @@ let make_ball(x,y, size : int * int * int) : t_ball =
   @param game représente le jeu en cours d'exécution.
   @return Renvoie la chaîne de caractère représentant l'état du jeu.
 *)
+(** 
+  @author CASTRO MATIAS 
+*)
 let string_of_gamestate(game : t_camlbrick) : string =
   (* Itération 1,2,3 et 4 *)
-  "INCONNU"
+  match game.state with
+  | GAMEOVER -> "GAME OVER"
+  | PLAYING -> "PLAYING"
+  | PAUSING -> "PAUSING"
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   (* Itération 1 *)
-  if i = 1 && j = 1
-  then BK_empty
-  else BK_simple 
+  (* Vérifie si les coordonnées se trouvent à l'intérieur des limites de la matrice de briques *)
+  if i >= 0 && i < game.world_bricks_height && j >= 0 && j < game.world_width then
+    (* Obtient le type de brique à la position (i, j) *)
+    game.bricks.(i).(j).brick_kind
+  else
+    (* Renvoie un type de brique vide si les coordonnées se trouvent en dehors des limites *)
+    BK_empty
 ;;
 
+
+(** 
+  @author CASTRO MATIAS 
+*)
 let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind = 
-  (* Itération 1 *)
-  BK_empty
+  let brick = brick_get(game, i, j) in
+  match brick with
+    | BK_simple -> BK_empty (* El ladrillo simple desaparece *)
+    | BK_double -> BK_simple (* El ladrillo doble se convierte en simple *)
+    | BK_block -> BK_block (* El bloque no puede ser destruido *)
+    | BK_bonus -> BK_empty (* El ladrillo de bonificación desaparece y la acción correspondiente se maneja fuera de esta función *)
+    | BK_empty -> BK_empty (* El espacio vacío permanece vacío *)
 ;;
 
+
+(** 
+  @author CASTRO MATIAS 
+*)
 let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color = 
-  (* Itération 1 *)
-  ORANGE
+  (* Obtient le type de brique à la position (i, j) *)
+  let brick_kind = brick_get(game, i, j) in
+  (* Associe une couleur à chaque type de brique *)
+  match brick_kind with
+    | BK_empty -> WHITE
+    | BK_simple -> ORANGE
+    | BK_double -> BLUE
+    | BK_block -> GREEN
+    | BK_bonus -> YELLOW
 ;;
 
 
