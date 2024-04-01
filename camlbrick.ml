@@ -208,29 +208,42 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 *)
 let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
-  (* Création du vecteur à partir de (x, y) *)
-  let scalar_vector = { x = x; y = y } in
-  (* Multiplication des composantes *)
-  let result_x = a.x * scalar_vector.x in
-  let result_y = a.y * scalar_vector.y in
+  let result_x = a.x * x in
+  let result_y = a.y * y in
   { x = result_x; y = result_y }
 ;;
 
 
 
 (* Itération 2 *)
-type t_ball = unit;;
+(** 
+  @author CASTRO MATIAS 
+*)
+type t_ball = {
+  position : t_vec2; (** Posición de la pelota en el mundo *)
+  mutable velocity : t_vec2; (** Vector velocidad de la pelota *)
+  size : t_ball_size; (** Tamaño de la pelota *)
+};;
 
 (* Itération 2 *)
-type t_paddle = unit;;
+(** 
+  @author CASTRO MATIAS 
+*)
+type t_paddle = { mutable paddle_x : int; (** position horizontale de la palette *)
+                  mutable paddle_size : t_paddle_size; (** taille de la palette *)
+};;
 
 
 (* Itération 1, 2, 3 et 4 *)
 (** 
   @author CASTRO MATIAS 
 *)
-type t_camlbrick = { mutable param : t_camlbrick_param; (** Paramètres du jeu *)
-                      state : t_gamestate;};;
+type t_camlbrick = {  mutable param : t_camlbrick_param; (** Paramètres du jeu *)
+                      state : t_gamestate;
+                      mutable bricks : t_brick_kind array array;
+                      mutable paddle : t_paddle;
+                      mutable ball : t_ball list;
+};;
 
 
 (**
@@ -253,7 +266,6 @@ let make_camlbrick_param() : t_camlbrick_param = {
 }
 ;;
 
-
 (**
   Cette fonction extrait le paramétrage d'un jeu à partir du jeu donné en argument.
   @param game jeu en cours d'exécution.
@@ -268,6 +280,19 @@ let param_get(game : t_camlbrick) : t_camlbrick_param =
 ;;
 
 (**
+  Cette fonction crée une raquette par défaut au milieu de l'écran et de taille normal.  
+  @deprecated Cette fonction est là juste pour le debug ou pour débuter certains traitements de test.
+*)
+(** 
+  @author CASTRO MATIAS 
+*)
+let make_paddle() : t_paddle =
+  (* Itération 2 *)
+  { paddle_x = 400(* calculer la position x au milieu de l'écran *) ;
+    paddle_size = PS_MEDIUM (* taille par défaut, tu peux ajuster si nécessaire *) }
+;;
+
+(**
   Cette fonction crée une nouvelle structure qui initialise le monde avec aucune brique visible.
   Une raquette par défaut et une balle par défaut dans la zone libre.
   @return Renvoie un jeu correctement initialisé
@@ -277,25 +302,33 @@ let param_get(game : t_camlbrick) : t_camlbrick_param =
 *)
 let make_camlbrick() : t_camlbrick = 
   (* Itération 1, 2, 3 et 4 *)
-  let params = make_camlbrick_param () in (* Crée les paramètres du jeu *)
-  {
-    param = params; (* Initialise les paramètres du jeu *)
-  }
+  let paddle = make_paddle () in
+  let params = make_camlbrick_param () in
+  let ball = { 
+    position = { x = int_of_float (float_of_int paddle.paddle_x +. float_of_int (params.paddle_init_width / 2)); 
+                 y = params.world_bricks_height - params.brick_height };  (* Position initiale de la balle, ajustée au-dessus de la raquette*)
+    velocity = { x = 0; y = 0 };  (* Vitesse initiale de la balle*)
+    size = BS_MEDIUM;  (* Taille initiale de la balle*)
+  } in
+  { param = params; 
+    bricks = Array.make_matrix params.world_width params.world_bricks_height BK_empty;
+    state = PLAYING;
+    paddle = paddle;
+    ball = [ball]} 
 ;;
 
-
-(**
-  Cette fonction crée une raquette par défaut au milieu de l'écran et de taille normal.  
-  @deprecated Cette fonction est là juste pour le debug ou pour débuter certains traitements de test.
+(** 
+  @author CASTRO MATIAS 
 *)
-let make_paddle() : t_paddle =
-  (* Itération 2 *)
-  ()
-;;
-
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
-  ()
+  { position = make_vec2(x, y); (* Crear un vector 2D para la posición *)
+    velocity = { x = 0; y = 0 }; (* Inicializar la velocidad a cero *)
+    size = match size with
+      | 1 -> BS_SMALL
+      | 2 -> BS_MEDIUM
+      | 3 -> BS_BIG
+      | _ -> BS_MEDIUM (* Taille moyenne par défaut en cas de valeur incorrecte *) }
 ;;
 
 
@@ -325,15 +358,16 @@ let string_of_gamestate(game : t_camlbrick) : string =
 *)
 let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   (* Itération 1 *)
-  (* Vérifie si les coordonnées se trouvent à l'intérieur des limites de la matrice de briques *)
-  if i >= 0 && i < game.world_bricks_height && j >= 0 && j < game.world_width then
-    (* Obtient le type de brique à la position (i, j) *)
-    game.bricks.(i).(j).brick_kind
+  if i >= 0 && i < game.param.world_width && j >= 0 && j < game.param.world_bricks_height then
+    match game.bricks.(i).(j) with
+    | BK_empty -> BK_empty
+    | BK_simple -> BK_simple
+    | BK_double -> BK_double
+    | BK_block -> BK_block
+    | BK_bonus -> BK_bonus
   else
-    (* Renvoie un type de brique vide si les coordonnées se trouvent en dehors des limites *)
-    BK_empty
-;;
-
+    failwith "Coordonnées en dehors de la zone des briques"
+  ;;
 
 (** 
   @author CASTRO MATIAS 
@@ -341,13 +375,12 @@ let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
 let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind = 
   let brick = brick_get(game, i, j) in
   match brick with
-    | BK_simple -> BK_empty (* El ladrillo simple desaparece *)
-    | BK_double -> BK_simple (* El ladrillo doble se convierte en simple *)
-    | BK_block -> BK_block (* El bloque no puede ser destruido *)
-    | BK_bonus -> BK_empty (* El ladrillo de bonificación desaparece y la acción correspondiente se maneja fuera de esta función *)
-    | BK_empty -> BK_empty (* El espacio vacío permanece vacío *)
+    | BK_simple -> BK_empty (* La brique simple disparaît *)
+    | BK_double -> BK_simple (* La brique double se transforme en simple *)
+    | BK_block -> BK_block (* Le bloc ne peut pas être détruit *)
+    | BK_bonus -> BK_empty (* La brique bonus disparaît et l'action correspondante est gérée en dehors de cette fonction *)
+    | BK_empty -> BK_empty (* L'espace vide reste vide *)
 ;;
-
 
 (** 
   @author CASTRO MATIAS 
@@ -365,88 +398,175 @@ let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color =
 ;;
 
 
-
+(** 
+  @author CASTRO MATIAS 
+*)
 let paddle_x(game : t_camlbrick) : int= 
   (* Itération 2 *)
-  0
+  game.paddle.paddle_x
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let paddle_size_pixel(game : t_camlbrick) : int = 
   (* Itération 2 *)
-  0
+    (* Récupérer la palette du jeu *)
+    let paddle = game.paddle in
+    (* Déterminer la taille de la palette et retourner la taille correspondante en pixels *)
+    match paddle.paddle_size with
+    | PS_SMALL -> 50 (* Taille en pixels pour la palette de taille petite *)
+    | PS_MEDIUM -> 75 (* Taille en pixels pour la palette de taille moyenne *)
+    | PS_BIG -> 100 (* Taille en pixels pour la palette de taille grande *)
+  ;;
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let paddle_move_left(game : t_camlbrick) : unit = 
-  (* Itération 2 *)
-  ()
+  let paddle = game.paddle in
+  let move_amount = 10 (* Cantidad de píxeles a mover *) in
+  let min_x = 0 (* Coordenada x mínima permitida, borde de la pantalla*) in
+    paddle.paddle_x <- max min_x (paddle.paddle_x - move_amount)
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let paddle_move_right(game : t_camlbrick) : unit = 
-  (* Itération 2 *)
-  ()
- ;;
+  let paddle = game.paddle in
+  let move_amount = 10 (* Quantité de pixels à déplacer *) in
+  let max_x = game.param.world_width - paddle_size_pixel(game)  (* Coordonnée x maximale autorisée, bord de l'écran *) in
+  let paddle_right = paddle.paddle_x + paddle_size_pixel(game) in
+  let new_paddle_right = paddle_right + move_amount in (* Nouvelle position du bord droit de la palette *)
+    paddle.paddle_x <- min max_x new_paddle_right
+;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
+(*Paddle stop - NO integrated*)
+let paddle_stop(game : t_camlbrick) : unit =
+  (* Nous empêchons la raquette de se déplacer trop vers la gauche ou trop vers la droite *)
+  let paddle = game.paddle in
+  let move_amount = 0 in (* Nous ne voulons pas que la raquette se déplace *)
+  let max_x = game.param.world_width - paddle_size_pixel(game) in
+  let paddle_right = paddle.paddle_x + paddle_size_pixel(game) in
+  let new_paddle_right = paddle_right + move_amount in
+  paddle.paddle_x <- min max_x new_paddle_right;
+  paddle.paddle_x <- max 0 paddle.paddle_x
+;;
+
+(** 
+  @author CASTRO MATIAS 
+*)
 let has_ball(game : t_camlbrick) : bool =
   (* Itération 2 *)
-  false
+  match game.ball with
+  | [] -> false  (* Il n'y a pas de balles dans le jeu *)
+  | _ -> true    (* Il y a au moins une balle dans le jeu *)
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let balls_count(game : t_camlbrick) : int =
   (* Itération 2 *)
-  0
+  List.length game.ball
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let balls_get(game : t_camlbrick) : t_ball list = 
   (* Itération 2 *)
-  []
+  game.ball
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_get(game, i : t_camlbrick * int) : t_ball =
   (* Itération 2 *)
-  ()
+  List.nth game.ball i
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_x(game,ball : t_camlbrick * t_ball) : int =
   (* Itération 2 *)
-  0
+  ball.position.x
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_y(game, ball : t_camlbrick * t_ball) : int =
   (* Itération 2 *)
-  0
+  ball.position.y
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_size_pixel(game, ball : t_camlbrick * t_ball) : int =
   (* Itération 2 *)
-  0
+  match ball.size with
+  | BS_SMALL -> 10   (* Taille du cercle pour une petite balle *)
+  | BS_MEDIUM -> 20  (* Taille du cercle pour une balle de taille moyenne *)
+  | BS_BIG -> 30     (* Taille du cercle pour une grande balle *)
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_color(game, ball : t_camlbrick * t_ball) : t_camlbrick_color =
   (* Itération 2 *)
-  GRAY
+  match ball.size with
+  | BS_SMALL -> GRAY    (* Couleur pour les petites balles *)
+  | BS_MEDIUM -> CYAN     (* Couleur pour les balles de taille moyenne *)
+  | BS_BIG -> MAGENTA     (* Couleur pour les grandes balles *)
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_modif_speed(game, ball, dv : t_camlbrick * t_ball * t_vec2) : unit =
   (* Itération 3 *)
-  ()
+  ball.velocity <- { x = ball.velocity.x + dv.x; y = ball.velocity.y + dv.y }
 ;;
 
-
+(** 
+  @author CASTRO MATIAS 
+*)
 let ball_modif_speed_sign(game, ball, sv : t_camlbrick * t_ball * t_vec2) : unit =
   (* Itération 3 *)
-  ()
+  let new_velocity = vec2_mult(ball.velocity, sv) in
+  ball.velocity <- new_velocity
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
+(* On calcule la distance au carré entre le point (x, y) et le centre du cercle (cx, cy).
+   Ensuite, on compare cette distance au carré avec le carré du rayon du cercle pour déterminer
+   si le point est à l'intérieur du cercle. *)
 let is_inside_circle(cx,cy,rad, x, y : int * int * int * int * int) : bool =
   (* Itération 3 *)
-  false
+  let distance_squared = (x - cx) * (x - cx) + (y - cy) * (y - cy) in
+  let radius_squared = rad * rad in
+  distance_squared <= radius_squared
 ;;
 
+(** 
+  @author CASTRO MATIAS 
+*)
 let is_inside_quad(x1,y1,x2,y2, x,y : int * int * int * int * int * int) : bool =
   (* Itération 3 *)
-  false
+  x >= x1 && x <= x2 && y >= y1 && y <= y2
 ;;
-
 
 
 let ball_remove_out_of_border(game,balls : t_camlbrick * t_ball list ) : t_ball list = 
@@ -501,7 +621,14 @@ let canvas_mouse_move(game,x,y : t_camlbrick * int * int) : unit =
   @param y l'ordonnée de la position de la souris     
 *)
 let canvas_mouse_click_press(game,button,x,y : t_camlbrick * int * int * int) : unit =
-  ()
+  match button with
+    | 1 -> 
+      (* Botón izquierdo del ratón *)
+      paddle_move_left game
+    | 3 -> 
+      (* Botón derecho del ratón *)
+      paddle_move_right game
+    | _ -> ()
 ;;
 
 
@@ -516,7 +643,14 @@ let canvas_mouse_click_press(game,button,x,y : t_camlbrick * int * int * int) : 
   @param y l'ordonnée de la position du relachement   
 *)
 let canvas_mouse_click_release(game,button,x,y : t_camlbrick * int * int * int) : unit =
-  ()
+  match button with  
+    | 1 -> 
+      (* Botón izquierdo del ratón *)
+      paddle_stop game
+    | 3 -> 
+      (* Botón derecho del ratón *)
+      paddle_stop game
+    | _ -> ()
 ;;
 
 
