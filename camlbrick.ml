@@ -623,10 +623,10 @@ let canvas_mouse_move(game,x,y : t_camlbrick * int * int) : unit =
 let canvas_mouse_click_press(game,button,x,y : t_camlbrick * int * int * int) : unit =
   match button with
     | 1 -> 
-      (* Botón izquierdo del ratón *)
+      (* Le bouton gauche de la souris *)
       paddle_move_left game
     | 3 -> 
-      (* Botón derecho del ratón *)
+      (* Le bouton droit de la souris. *)
       paddle_move_right game
     | _ -> ()
 ;;
@@ -645,10 +645,10 @@ let canvas_mouse_click_press(game,button,x,y : t_camlbrick * int * int * int) : 
 let canvas_mouse_click_release(game,button,x,y : t_camlbrick * int * int * int) : unit =
   match button with  
     | 1 -> 
-      (* Botón izquierdo del ratón *)
+      (* Le bouton gauche de la souris. *)
       paddle_stop game
     | 3 -> 
-      (* Botón derecho del ratón *)
+      (* Le bouton droit de la souris. *)
       paddle_stop game
     | _ -> ()
 ;;
