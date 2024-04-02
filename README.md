@@ -41,3 +41,36 @@ Nous avons implémenté les structures de données nécessaires pour représente
 - `brick_color(b: brique_type): color` : Renvoie une couleur selon le type de brique.
 
 Des tests appropriés ont été réalisés pour ces fonctions et des modifications ont été apportées dans le fichier `camlbrick_launcher.ml` pour vérifier l'intégration correcte avec l'interface graphique du jeu.
+
+## Itération 2: Gestion de la raquette et préparation des balles
+
+### Gestion de la raquette
+
+#### Préparation de la raquette
+Dans cette itération, nous nous sommes concentrés sur la préparation de la raquette afin de pouvoir la représenter et contrôler son mouvement dans le jeu. Nous avons défini le type `t_paddle` pour représenter la raquette et avons modifié le type `t_camlbrick` pour qu'une instance du jeu puisse stocker des informations sur la raquette. Les fonctions suivantes ont été implémentées :
+
+- `make_paddle()`: Crée une instance de raquette pour une utilisation lors des tests logiciels.
+- `paddle_x`: Renvoie la position gauche du rectangle qui symbolise la raquette.
+- `paddle_size_pixel`: Renvoie la largeur en pixels du rectangle de la raquette.
+- `paddle_move_left()`: Permet de déplacer la raquette vers la gauche.
+- `paddle_move_right()`: Permet de déplacer la raquette vers la droite.
+
+Des tests approfondis ont été effectués pour assurer le bon fonctionnement de ces fonctions et leur intégration avec l'interface graphique du jeu.
+
+### Préparation des balles
+
+#### Conception du type des balles
+À cette étape, nous nous sommes concentrés sur la conception du type de données pour représenter les balles dans le jeu. Nous avons défini le type `t_ball`, qui inclut des informations sur la position, la vitesse et la taille d'une balle. Nous avons modifié le type `t_camlbrick` pour pouvoir stocker les balles présentes dans le niveau. Les fonctions suivantes ont été implémentées :
+
+- `has_ball`: Indique si la partie actuelle contient des balles.
+- `balls_count`: Renvoie le nombre de balles présentes dans une partie.
+- `balls_get`: Récupère toutes les balles d'une partie.
+- `ball_get`: Récupère une balle spécifique d'une partie.
+- `ball_x`: Renvoie la coordonnée x du centre d'une balle.
+- `ball_y`: Renvoie la coordonnée y du centre d'une balle.
+- `ball_size_pixel`: Indique la taille de la balle en pixels.
+- `ball_color`: Renvoie la couleur d'une balle.
+
+Ces fonctions ont été conçues pour faciliter la visualisation des balles dans l'interface graphique du jeu et leur manipulation ultérieure dans les itérations futures.
+
+Pour préparer la prochaine itération, nous avons finalisé cette étape en implémentant des fonctions qui seront utiles pour détecter certains comportements liés aux balles. Cela comprend les fonctions `ball_modif_speed` et `ball_modif_speed_sign`, qui permettent d'ajuster la vitesse des balles, ainsi que les fonctions de détection `is_inside_circle` et `is_inside_quad`, qui sont utilisées pour déterminer si un point se trouve à l'intérieur d'une balle.
