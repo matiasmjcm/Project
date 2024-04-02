@@ -220,17 +220,17 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @author CASTRO MATIAS 
 *)
 type t_ball = {
-  position : t_vec2; (** Posición de la pelota en el mundo *)
-  mutable velocity : t_vec2; (** Vector velocidad de la pelota *)
-  size : t_ball_size; (** Tamaño de la pelota *)
+  position : t_vec2; (** Position de la balle dans le monde *)
+  mutable velocity : t_vec2; (** Vecteur vitesse de la balle *)
+  size : t_ball_size; (** Taille de la balle *)
 };;
 
 (* Itération 2 *)
 (** 
   @author CASTRO MATIAS 
 *)
-type t_paddle = { mutable paddle_x : int; (** position horizontale de la palette *)
-                  mutable paddle_size : t_paddle_size; (** taille de la palette *)
+type t_paddle = { mutable paddle_x : int; (** Position horizontale de la palette *)
+                  mutable paddle_size : t_paddle_size; (** Taille de la palette *)
 };;
 
 
@@ -322,8 +322,8 @@ let make_camlbrick() : t_camlbrick =
 *)
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
-  { position = make_vec2(x, y); (* Crear un vector 2D para la posición *)
-    velocity = { x = 0; y = 0 }; (* Inicializar la velocidad a cero *)
+  { position = make_vec2(x, y); (* Créer un vecteur 2D pour la position *)
+    velocity = { x = 0; y = 0 }; (* Initialiser la vitesse à zéro *)
     size = match size with
       | 1 -> BS_SMALL
       | 2 -> BS_MEDIUM
@@ -426,21 +426,21 @@ let paddle_size_pixel(game : t_camlbrick) : int =
 *)
 let paddle_move_left(game : t_camlbrick) : unit = 
   let paddle = game.paddle in
-  let move_amount = 10 (* Cantidad de píxeles a mover *) in
-  let min_x = 0 (* Coordenada x mínima permitida, borde de la pantalla*) in
+  let move_amount = 10 (* Nombre de pixels à déplacer *) in
+  let min_x = 0 (* Coordonnée x minimale autorisée, bord de l'écran *) in
     paddle.paddle_x <- max min_x (paddle.paddle_x - move_amount)
 ;;
 
 (** 
   @author CASTRO MATIAS 
 *)
-let paddle_move_right(game : t_camlbrick) : unit = 
+let paddle_move_right (game : t_camlbrick) : unit = 
   let paddle = game.paddle in
-  let move_amount = 10 (* Quantité de pixels à déplacer *) in
-  let max_x = game.param.world_width - paddle_size_pixel(game)  (* Coordonnée x maximale autorisée, bord de l'écran *) in
-  let paddle_right = paddle.paddle_x + paddle_size_pixel(game) in
-  let new_paddle_right = paddle_right + move_amount in (* Nouvelle position du bord droit de la palette *)
-    paddle.paddle_x <- min max_x new_paddle_right
+  let move_amount = 10 ((* Quantité de pixels à déplacer *) in
+  let max_x = game.param.world_width - paddle_size_pixel game in(* Coordonnée x maximale autorisée, bord de l'écran *)
+  let new_paddle_right = paddle.paddle_x + move_amount in (* Nouvelle position du bord droit de la palette *)
+  (*afin que la coordonnée ne dépasse pas la limite*)
+  paddle.paddle_x <- min max_x new_paddle_right
 ;;
 
 (** 
@@ -487,7 +487,7 @@ let balls_get(game : t_camlbrick) : t_ball list =
 (** 
   @author CASTRO MATIAS 
 *)
-let ball_get(game, i : t_camlbrick * int) : t_ball =
+let ball_get_i(game, i : t_camlbrick * int) : t_ball =
   (* Itération 2 *)
   List.nth game.ball i
 ;;
