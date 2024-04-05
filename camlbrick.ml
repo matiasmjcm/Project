@@ -161,6 +161,7 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 *)
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1, *)
@@ -319,6 +320,7 @@ let make_camlbrick() : t_camlbrick =
 
 (** 
   @author CASTRO MATIAS 
+  @OUTHOR KERAN JOYEUX
 *)
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
@@ -384,6 +386,7 @@ let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX 
 *)
 let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color = 
   (* Obtient le type de brique à la position (i, j) *)
