@@ -1,6 +1,6 @@
 (**@Author CASTRO MENDOZA, Matias*)
 (**#use "camlbrick.ml";;*)
-(**Je importe mon fichier camlbrick.ml mais sans OUnit2 
+(**J'importe mon fichier camlbrick.ml mais sans OUnit2 
 je peux l'utiliser mais lorsque j'utilise OUnit, cela 
 ne me permet pas de l'utiliser, cela me donne une erreur, 
 donc c'est pour cela que j'ai apporté les fonctions et les ai testées.
