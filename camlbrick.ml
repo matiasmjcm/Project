@@ -357,6 +357,7 @@ let string_of_gamestate(game : t_camlbrick) : string =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   (* Itération 1 *)
@@ -571,16 +572,57 @@ let is_inside_quad(x1,y1,x2,y2, x,y : int * int * int * int * int * int) : bool 
   x >= x1 && x <= x2 && y >= y1 && y <= y2
 ;;
 
+(** 
+  @author KERAN JOYEUX
+*)
 
 let ball_remove_out_of_border(game,balls : t_camlbrick * t_ball list ) : t_ball list = 
   (* Itération 3 *)
-  balls
+  let rec filter_balls = function
+    | [] -> []
+    | ball :: balls ->
+        if ball.position.y > game.param.world_empty_height then
+          filter_balls balls
+        else
+          ball :: filter_balls balls
+  in
+  filter_balls balls
 ;;
+
+(** 
+  @author KERAN JOYEUX
+*)
+
 
 let ball_hit_paddle(game,ball,paddle : t_camlbrick * t_ball * t_paddle) : unit =
   (* Itération 3 *)
-  ()
+  let paddle_x = paddle.paddle_x in
+  let paddle_y = game.param.world_bricks_height in
+  let paddle_width = match paddle.paddle_size with
+    | PS_SMALL -> 50
+    | PS_MEDIUM -> 75
+    | PS_BIG -> 100
+  in
+  let ball_x = ball.position.x in
+  let ball_y = ball.position.y in
+  let ball_radius = match ball.size with
+    | BS_SMALL -> 10
+    | BS_MEDIUM -> 20
+    | BS_BIG -> 30
+  in
+  if ball_y + ball_radius >= paddle_y && ball_x >= paddle_x && ball_x <= paddle_x + paddle_width then begin
+    let collision_point = ball_x -. paddle_x -. Float.of_int (paddle_width / 2) in
+    let collision_ratio = collision_point /. Float.of_int (paddle_width / 2) in
+    let angle = Float.of_int (75 * (1. -. abs_float collision_ratio)) in
+    let velocity_x = ball.velocity.x in
+    let velocity_y = - (int_of_float (Float.cos angle *. Float.of_int ball.velocity.y)) in
+    ball.velocity <- { x = velocity_x; y = velocity_y }
+  end
 ;;
+
+(** 
+  @author KERAN JOYEUX
+*)
 
 
 (* lire l'énoncé choix à faire *)
@@ -595,9 +637,26 @@ let ball_hit_side_brick(game,ball, i,j : t_camlbrick * t_ball * int * int) : boo
   false
 ;;
 
+(** 
+  @author KERAN JOYEUX
+*)
+
 let game_test_hit_balls(game, balls : t_camlbrick * t_ball list) : unit =
   (* Itération 3 *)
-  ()
+let rec loop = function
+    | [] -> ()
+    | ball :: balls ->
+        for i = 0 to game.param.world_width / game.param.brick_width - 1 do
+          for j = 0 to game.param.world_bricks_height / game.param.brick_height - 1 do
+            if is_inside_quad i j game.param.brick_width game.param.brick_height ball.position then
+              ball_hit_brick game ball i j
+          done
+        done;
+        if is_inside_quad 0 game.param.world_bricks_height game.param.world_width game.param.paddle_init_height { x = ball.position.x; y = game.param.world_bricks_height } then
+          ball_hit_paddle game ball game.paddle;
+        loop balls
+  in
+  loop balls
 ;;
 
 (**
