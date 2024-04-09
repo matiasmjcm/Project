@@ -107,8 +107,8 @@ type t_gamestate = GAMEOVER | PLAYING | PAUSING;;
   @author CASTRO MATIAS 
 *)
 type t_vec2 = {
-  x : int; (** Composante en x du vecteur *)
-  y : int; (** Composante en y du vecteur *)
+  mutable x : int; (** Composante en x du vecteur *)
+  mutable y : int; (** Composante en y du vecteur *)
 };;
 
 
@@ -161,7 +161,6 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 *)
 (** 
   @author CASTRO MATIAS 
-  @author KERAN JOYEUX
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1, *)
@@ -221,7 +220,7 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @author CASTRO MATIAS 
 *)
 type t_ball = {
-  position : t_vec2; (** Position de la balle dans le monde *)
+  mutable position : t_vec2; (** Position de la balle dans le monde *)
   mutable velocity : t_vec2; (** Vecteur vitesse de la balle *)
   size : t_ball_size; (** Taille de la balle *)
 };;
@@ -240,7 +239,7 @@ type t_paddle = { mutable paddle_x : int; (** Position horizontale de la palette
   @author CASTRO MATIAS 
 *)
 type t_camlbrick = {  mutable param : t_camlbrick_param; (** Paramètres du jeu *)
-                      state : t_gamestate;
+                      mutable state : t_gamestate;
                       mutable bricks : t_brick_kind array array;
                       mutable paddle : t_paddle;
                       mutable ball : t_ball list;
@@ -277,7 +276,7 @@ let make_camlbrick_param() : t_camlbrick_param = {
 *)
 let param_get(game : t_camlbrick) : t_camlbrick_param =
   (* Itération 1 *)
-  make_camlbrick_param()
+  game.param
 ;;
 
 (**
@@ -320,7 +319,6 @@ let make_camlbrick() : t_camlbrick =
 
 (** 
   @author CASTRO MATIAS 
-  @OUTHOR KERAN JOYEUX
 *)
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
@@ -355,9 +353,19 @@ let string_of_gamestate(game : t_camlbrick) : string =
   | PAUSING -> "PAUSING"
 ;;
 
+
+(** 
+   Récupère le type de brique à une position donnée dans la grille de briques.
+   Si les coordonnées (i, j) se trouvent à l'intérieur de la grille, renvoie le type de brique
+   à cette position. Sinon, génère une erreur.
+   @param game : Instance du jeu.
+   @param i : Index de la colonne de la brique.
+   @param j : Index de la rangée de la brique.
+   @return : Le type de la brique à la position donnée.
+   @raise : Failure si les coordonnées sont en dehors de la zone des briques.
+*)
 (** 
   @author CASTRO MATIAS 
-  @author KERAN JOYEUX
 *)
 let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   (* Itération 1 *)
@@ -371,7 +379,7 @@ let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   else
     failwith "Coordonnées en dehors de la zone des briques"
   ;;
-
+  
 (** 
   @author CASTRO MATIAS 
 *)
@@ -387,7 +395,6 @@ let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
 
 (** 
   @author CASTRO MATIAS 
-  @author KERAN JOYEUX 
 *)
 let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color = 
   (* Obtient le type de brique à la position (i, j) *)
@@ -412,6 +419,7 @@ let paddle_x(game : t_camlbrick) : int=
 
 (** 
   @author CASTRO MATIAS 
+  creoq que se dee corregir, es por lo que no se ve el juego creeeo
 *)
 let paddle_size_pixel(game : t_camlbrick) : int = 
   (* Itération 2 *)
@@ -440,7 +448,7 @@ let paddle_move_left(game : t_camlbrick) : unit =
 *)
 let paddle_move_right (game : t_camlbrick) : unit = 
   let paddle = game.paddle in
-  let move_amount = 10 ((* Quantité de pixels à déplacer *) in
+  let move_amount = 10 (* Quantité de pixels à déplacer *) in
   let max_x = game.param.world_width - paddle_size_pixel game in(* Coordonnée x maximale autorisée, bord de l'écran *)
   let new_paddle_right = paddle.paddle_x + move_amount in (* Nouvelle position du bord droit de la palette *)
   (*afin que la coordonnée ne dépasse pas la limite*)
@@ -573,90 +581,158 @@ let is_inside_quad(x1,y1,x2,y2, x,y : int * int * int * int * int * int) : bool 
 ;;
 
 (** 
-  @author KERAN JOYEUX
+   Supprime les balles sorties de l'écran de jeu.
+   @param game : Instance du jeu.
+   @param balls : Liste des balles à filtrer.
+   @return : Liste filtrée des balles restantes.
 *)
-
+(** 
+  @author CASTRO MATIAS
+  @coauteur KERAN JOYEUX
+*)
 let ball_remove_out_of_border(game,balls : t_camlbrick * t_ball list ) : t_ball list = 
   (* Itération 3 *)
   let rec filter_balls = function
-    | [] -> []
-    | ball :: balls ->
-        if ball.position.y > game.param.world_empty_height then
-          filter_balls balls
-        else
-          ball :: filter_balls balls
+  | [] -> []
+  | ball :: balls ->
+      if ball.position.y > game.param.world_empty_height then
+        filter_balls balls
+      else
+        ball :: filter_balls balls
   in
   filter_balls balls
 ;;
 
+
 (** 
-  @author KERAN JOYEUX
+   Gère la collision entre la balle et la raquette.
+   Si la balle entre en collision avec la raquette, ajuste sa direction en fonction
+   de la section de la raquette touchée.
+   @param game : Instance du jeu.
+   @param ball : La balle en mouvement.
+   @param paddle : La raquette dans le jeu.
 *)
-
-
-let ball_hit_paddle(game,ball,paddle : t_camlbrick * t_ball * t_paddle) : unit =
-  (* Itération 3 *)
+(** 
+  @author CASTRO MATIAS
+  @coauteur KERAN JOYEUX
+*)
+let ball_hit_paddle(game, ball, paddle : t_camlbrick * t_ball * t_paddle) : unit =
   let paddle_x = paddle.paddle_x in
-  let paddle_y = game.param.world_bricks_height in
+  let paddle_y = game.param.world_empty_height - game.param.paddle_init_height in
   let paddle_width = match paddle.paddle_size with
     | PS_SMALL -> 50
     | PS_MEDIUM -> 75
     | PS_BIG -> 100
   in
+
   let ball_x = ball.position.x in
   let ball_y = ball.position.y in
   let ball_radius = match ball.size with
-    | BS_SMALL -> 10
-    | BS_MEDIUM -> 20
-    | BS_BIG -> 30
+    | BS_SMALL -> 5
+    | BS_MEDIUM -> 10
+    | BS_BIG -> 15
   in
-  if ball_y + ball_radius >= paddle_y && ball_x >= paddle_x && ball_x <= paddle_x + paddle_width then begin
-    let collision_point = ball_x -. paddle_x -. Float.of_int (paddle_width / 2) in
-    let collision_ratio = collision_point /. Float.of_int (paddle_width / 2) in
-    let angle = Float.of_int (75 * (1. -. abs_float collision_ratio)) in
-    let velocity_x = ball.velocity.x in
-    let velocity_y = - (int_of_float (Float.cos angle *. Float.of_int ball.velocity.y)) in
-    ball.velocity <- { x = velocity_x; y = velocity_y }
+
+  (* Vérifier si la balle entre en collision avec la palette *)
+  if ball_y - ball_radius <= paddle_y && ball_y + ball_radius >= paddle_y &&
+     ball_x >= paddle_x && ball_x <= paddle_x + paddle_width then
+  begin
+    let sections = 5 in (* En supposant un nombre impair de sections pour cet exemple *)
+    let section_width = paddle_width / sections in
+    let relative_intercept_x = ball_x - paddle_x in
+    let section_hit = relative_intercept_x / section_width in
+    let middle_section = sections / 2 in
+
+    (* Calculer le ratio de collision basé sur la section touchée *)
+    let collision_ratio =
+      if section_hit < middle_section then
+        (-.1.) +. (float_of_int section_hit /. float_of_int middle_section)
+      else if section_hit > middle_section then
+        (float_of_int (section_hit - middle_section) /. float_of_int middle_section)
+      else
+        0. in
+
+    let new_velocity_x = int_of_float (10. *. collision_ratio) in
+    let new_velocity_y = -(ball.velocity.y) in
+
+    (* Ajustar la velocidad de la bola basándose en el punto de colisión *)
+    ball.velocity <- { x = new_velocity_x; y = new_velocity_y }
   end
 ;;
 
-(** 
-  @author KERAN JOYEUX
-*)
-
-
-(* lire l'énoncé choix à faire *)
-let ball_hit_corner_brick(game,ball, i,j : t_camlbrick * t_ball * int * int) : bool =
-  (* Itération 3 *)
-  false
-;;
-
-(* lire l'énoncé choix à faire *)
-let ball_hit_side_brick(game,ball, i,j : t_camlbrick * t_ball * int * int) : bool =
-  (* Itération 3 *)
-  false
-;;
 
 (** 
-  @author KERAN JOYEUX
+   Vérifie si la balle heurte le coin d'une brique.
+   Calcule les positions des coins de la brique à partir des indices i et j,
+   puis vérifie si la position de la balle se trouve à l'intérieur d'un des coins.
+   @param game : Instance du jeu.
+   @param ball : La balle en mouvement.
+   @param i : Index de la colonne de la brique.
+   @param j : Index de la rangée de la brique.
+   @return : true si la balle heurte un coin de la brique, false sinon.
 *)
+(**
+  @author CASTRO MATIAS     
+*)
+let ball_hit_corner_brick(game, ball, i, j : t_camlbrick * t_ball * int * int) : bool =
+  let brick_pos = (i * game.param.brick_width, j * game.param.brick_height) in
+  let (brick_x, brick_y) = brick_pos in  (* Déstructurez d'abord le tuple *)
+  let corners = [
+    brick_pos; 
+    (brick_x + game.param.brick_width, brick_y);
+    (brick_x, brick_y + game.param.brick_height);
+    (brick_x + game.param.brick_width, brick_y + game.param.brick_height)] in
+  List.exists (fun (cx, cy) ->
+    is_inside_circle(cx, cy, ball_size_pixel(game, ball), ball.position.x, ball.position.y)
+  ) corners
+;;
 
+
+(** 
+   Vérifie si la balle heurte le côté d'une brique.
+   Calcule les coordonnées du coin supérieur gauche de la brique en fonction des indices i et j,
+   puis vérifie si la position de la balle se trouve à l'intérieur de ce côté de la brique.
+   @param game : Instance du jeu.
+   @param ball : La balle en mouvement.
+   @param i : Index de la colonne de la brique.
+   @param j : Index de la rangée de la brique.
+   @return : true si la balle heurte le côté de la brique et ne touche pas un coin, false sinon.
+*)
+(**
+  @author CASTRO MATIAS     
+*)
+(* lire l'énoncé choix à faire *)
+let ball_hit_side_brick(game, ball, i, j : t_camlbrick * t_ball * int * int) : bool =
+  let brick_x = i * game.param.brick_width and brick_y = j * game.param.brick_height in
+  (**let ball_radius = ball.size |> ball_size_to_pixels in*)
+  is_inside_quad(brick_x, brick_y, brick_x + game.param.brick_width, brick_y + game.param.brick_height,
+                 ball.position.x, ball.position.y) &&
+  not (ball_hit_corner_brick(game, ball, i, j))
+;;
+
+(**
+  @author CASTRO MATIAS     
+*)
 let game_test_hit_balls(game, balls : t_camlbrick * t_ball list) : unit =
-  (* Itération 3 *)
-let rec loop = function
-    | [] -> ()
-    | ball :: balls ->
-        for i = 0 to game.param.world_width / game.param.brick_width - 1 do
-          for j = 0 to game.param.world_bricks_height / game.param.brick_height - 1 do
-            if is_inside_quad i j game.param.brick_width game.param.brick_height ball.position then
-              ball_hit_brick game ball i j
-          done
-        done;
-        if is_inside_quad 0 game.param.world_bricks_height game.param.world_width game.param.paddle_init_height { x = ball.position.x; y = game.param.world_bricks_height } then
-          ball_hit_paddle game ball game.paddle;
-        loop balls
-  in
-  loop balls
+  (*Parcourir chaque balle pour vérifier les collisions.*)
+  List.iter (fun ball ->
+    (*Vérifier les collisions avec chaque brique.*)
+    for i = 0 to (Array.length game.bricks) - 1 do
+      for j = 0 to (Array.length game.bricks.(0)) - 1 do
+        if brick_get(game, i, j) <> BK_empty then (
+          (*Si une collision avec un coin ou un côté est détectée, gérer la collision.*)
+          if ball_hit_corner_brick(game, ball, i, j) || ball_hit_side_brick(game, ball, i, j) then (
+            (*Gérer l'impact sur la brique et éventuellement ajuster la direction de la balle.*)
+
+            ignore (brick_hit(game, i, j)); (*Mettre à jour l'état de la brique.*)
+          )
+        )
+      done;
+    done;
+    
+    (*Vérifier la collision avec la raquette.*)
+    ball_hit_paddle(game, ball, game.paddle);
+  ) balls;
 ;;
 
 (**
@@ -825,16 +901,82 @@ let speed_get(game : t_camlbrick) : int =
   Ainsi, vous pourrez réagir selon le joueur.
 *)
 let speed_change(game,xspeed : t_camlbrick * int) : unit=
-  print_endline("Change speed : "^(string_of_int xspeed));
+  (* Ajuster le vecteur de vitesse de chaque balle selon xspeed.
+    xspeed pourrait être interprété de différentes manières ; ici, nous l'utilisons
+    comme un facteur de multiplication directe pour simplifier. *)
+    game.ball <- List.map (fun ball ->
+    let adjusted_velocity_x = ball.velocity.x * xspeed / 100 in
+    let adjusted_velocity_y = ball.velocity.y * xspeed / 100 in
+    { ball with velocity = { x = adjusted_velocity_x; y = adjusted_velocity_y } }
+  ) game.ball;
+  print_endline ("Vitesse changée à : " ^ string_of_int xspeed);
 ;;
 
 
 
-let animate_action(game : t_camlbrick) : unit =  
-  (* Iteration 1,2,3 et 4
-    Cette fonction est appelée par l'interface graphique à chaque frame
-    du jeu vidéo.
-    Vous devez mettre tout le code qui permet de montrer l'évolution du jeu vidéo.    
-  *)
-  ()
+(**
+  @author CASTRO MATIAS     
+*)
+let move_balls(game : t_camlbrick) : unit =
+  game.ball <- List.map (fun ball ->
+    let new_position = vec2_add (ball.position, ball.velocity) in
+    ball.position <- new_position;
+    ball
+  ) game.ball
 ;;
+
+(**
+  @author CASTRO MATIAS     
+*)
+let handle_collisions(game : t_camlbrick) : unit =
+  List.iter (fun ball ->
+    (* Collisions avec les bords de la zone de jeu *)
+    if ball.position.x <= 0 || ball.position.x >= game.param.world_width then
+      ball.velocity.x <- -(ball.velocity.x);
+    if ball.position.y <= 0 then
+      ball.velocity.y <- -(ball.velocity.y);
+
+    (* Collisions avec la palette *)
+    ball_hit_paddle(game, ball, game.paddle);
+
+    (* Collisions avec les briques *)
+    for i = 0 to (Array.length game.bricks) - 1 do
+      for j = 0 to (Array.length game.bricks.(0)) - 1 do
+        let brick = game.bricks.(i).(j) in
+        if brick <> BK_empty && (ball_hit_corner_brick(game, ball, i, j) || ball_hit_side_brick(game, ball, i, j)) then
+          let _ = brick_hit(game, i, j) in
+          (* Ajuster la direction de la balle après la collision avec la brique *)
+          ball.velocity.y <- -(ball.velocity.y)
+      done;
+    done;
+  ) game.ball
+;;
+
+(**
+  @author CASTRO MATIAS     
+*)
+let update_game_state(game : t_camlbrick) : unit =
+  (* Supprimer les balles qui sortent des limites inférieures *)
+  game.ball <- ball_remove_out_of_border(game, game.ball);
+  
+  (* Vérifier si le jeu est terminé *)
+  if List.length game.ball = 0 then
+    game.state <- GAMEOVER
+  else
+    (* Vérifier si toutes les briques ont été détruites pour la victoire *)
+    let bricks_left = Array.exists (fun row -> Array.exists ((<>) BK_empty) row) game.bricks in
+    if not bricks_left then
+      game.state <- GAMEOVER  (* Ou un autre état représentant la victoire *)
+;;
+
+(**
+  @author CASTRO MATIAS     
+*)
+let animate_action(game : t_camlbrick) : unit =
+  if game.state = PLAYING then begin
+    move_balls game;
+    handle_collisions game;
+    update_game_state game;
+  end
+;;
+
