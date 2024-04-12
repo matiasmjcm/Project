@@ -165,6 +165,7 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 (** 
   @author CASTRO MATIAS
   @author Enzo BENNEGENT
+  @author KERAN JOYEUX
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1, *)
@@ -211,6 +212,7 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 (** 
   @author CASTRO MATIAS 
   @author Enzo BENNEGENT
+  @author KERAN JOYEUX
 *)
 let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
@@ -329,6 +331,7 @@ let make_camlbrick() : t_camlbrick =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 let make_ball(x,y, size : int * int * int) : t_ball =
   (* Itération 3 *)
@@ -448,6 +451,7 @@ let paddle_size_pixel(game : t_camlbrick) : int =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 let paddle_move_left(game : t_camlbrick) : unit = 
   let paddle = game.paddle in
@@ -458,6 +462,7 @@ let paddle_move_left(game : t_camlbrick) : unit =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 let paddle_move_right (game : t_camlbrick) : unit = 
   let paddle = game.paddle in
@@ -470,6 +475,7 @@ let paddle_move_right (game : t_camlbrick) : unit =
 
 (** 
   @author CASTRO MATIAS 
+  @author KERAN JOYEUX
 *)
 (*Paddle stop - NO integrated*)
 let paddle_stop(game : t_camlbrick) : unit =
@@ -601,7 +607,7 @@ let is_inside_quad(x1,y1,x2,y2, x,y : int * int * int * int * int * int) : bool 
 *)
 (** 
   @author CASTRO MATIAS
-  @coauteur KERAN JOYEUX
+  @author KERAN JOYEUX
 *)
 let ball_remove_out_of_border(game,balls : t_camlbrick * t_ball list ) : t_ball list = 
   (* Itération 3 *)
@@ -627,7 +633,7 @@ let ball_remove_out_of_border(game,balls : t_camlbrick * t_ball list ) : t_ball 
 *)
 (** 
   @author CASTRO MATIAS
-  @coauteur KERAN JOYEUX
+  @author KERAN JOYEUX
 *)
 let ball_hit_paddle(game, ball, paddle : t_camlbrick * t_ball * t_paddle) : unit =
   let paddle_x = paddle.paddle_x in
