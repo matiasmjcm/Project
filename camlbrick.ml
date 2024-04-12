@@ -104,7 +104,8 @@ type t_gamestate = GAMEOVER | PLAYING | PAUSING;;
 
 (* Itération 1 *)
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
+  @author Enzo BENNEGENT
 *)
 type t_vec2 = {
   mutable x : int; (** Composante en x du vecteur *)
@@ -122,7 +123,8 @@ type t_vec2 = {
   @return Renvoie le vecteur dont les composantes sont (x,y).
 *)
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
+  @author Enzo BENNEGENT
 *)
 let make_vec2(x,y : int * int) : t_vec2 = 
   (* Itération 1 *)
@@ -136,7 +138,8 @@ let make_vec2(x,y : int * int) : t_vec2 =
   @return Renvoie un vecteur égale à la somme des vecteurs.
 *)
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
+  @author Enzo BENNEGENT
 *)
 let vec2_add(a,b : t_vec2 * t_vec2) : t_vec2 =
   (* Itération 1 *)
@@ -160,7 +163,8 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   @return Renvoie un vecteur qui est la résultante du vecteur 
 *)
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
+  @author Enzo BENNEGENT
 *)
 let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1, *)
@@ -187,6 +191,7 @@ let vec2_add_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 *)
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let vec2_mult(a,b : t_vec2 * t_vec2) : t_vec2 = 
   (* Itération 1 *)
@@ -205,6 +210,7 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 *)
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
   (* Itération 1 *)
@@ -218,6 +224,7 @@ let vec2_mult_scalar(a,x,y : t_vec2 * int * int) : t_vec2 =
 (* Itération 2 *)
 (** 
   @author CASTRO MATIAS 
+  @author Sina MIRMOHAMMADI
 *)
 type t_ball = {
   mutable position : t_vec2; (** Position de la balle dans le monde *)
@@ -227,7 +234,8 @@ type t_ball = {
 
 (* Itération 2 *)
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
+  @author Sina MIRMOHAMMADI
 *)
 type t_paddle = { mutable paddle_x : int; (** Position horizontale de la palette *)
                   mutable paddle_size : t_paddle_size; (** Taille de la palette *)
@@ -273,6 +281,7 @@ let make_camlbrick_param() : t_camlbrick_param = {
   *)
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let param_get(game : t_camlbrick) : t_camlbrick_param =
   (* Itération 1 *)
@@ -285,6 +294,7 @@ let param_get(game : t_camlbrick) : t_camlbrick_param =
 *)
 (** 
   @author CASTRO MATIAS 
+  @author Sina MIRMOHAMMADI
 *)
 let make_paddle() : t_paddle =
   (* Itération 2 *)
@@ -366,6 +376,7 @@ let string_of_gamestate(game : t_camlbrick) : string =
 *)
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   (* Itération 1 *)
@@ -382,6 +393,7 @@ let brick_get(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
   
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind = 
   let brick = brick_get(game, i, j) in
@@ -395,6 +407,7 @@ let brick_hit(game, i, j : t_camlbrick * int * int)  : t_brick_kind =
 
 (** 
   @author CASTRO MATIAS 
+  @author Enzo BENNEGENT
 *)
 let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color = 
   (* Obtient le type de brique à la position (i, j) *)
@@ -410,7 +423,7 @@ let brick_color(game,i,j : t_camlbrick * int * int) : t_camlbrick_color =
 
 
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
 *)
 let paddle_x(game : t_camlbrick) : int= 
   (* Itération 2 *)
@@ -481,7 +494,7 @@ let has_ball(game : t_camlbrick) : bool =
 ;;
 
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
 *)
 let balls_count(game : t_camlbrick) : int =
   (* Itération 2 *)
@@ -521,7 +534,7 @@ let ball_y(game, ball : t_camlbrick * t_ball) : int =
 ;;
 
 (** 
-  @author CASTRO MATIAS 
+  @author CASTRO MATIAS
 *)
 let ball_size_pixel(game, ball : t_camlbrick * t_ball) : int =
   (* Itération 2 *)
@@ -837,6 +850,8 @@ let canvas_keyreleased(game, keyString, keyCode : t_camlbrick * string * int) =
   print_newline()
 ;;
 
+   @author CASTRO MATIAS 
+   @author Sina MIRMOHAMMADI
 (**
   Cette fonction est utilisée par l'interface graphique pour connaitre l'information
   l'information à afficher dans la zone Custom1 de la zone du menu.
@@ -845,7 +860,8 @@ let custom1_text() : string =
   (* Iteration 4 *)
   "<Rien1>"
 ;;
-
+   @author CASTRO MATIAS 
+   @author Sina MIRMOHAMMADI
 (**
   Cette fonction est utilisée par l'interface graphique pour connaitre l'information
   l'information à afficher dans la zone Custom2 de la zone du menu.
@@ -915,7 +931,8 @@ let speed_change(game,xspeed : t_camlbrick * int) : unit=
 
 
 (**
-  @author CASTRO MATIAS     
+  @author CASTRO MATIAS 
+  @author Sina MIRMOHAMMADI
 *)
 let move_balls(game : t_camlbrick) : unit =
   game.ball <- List.map (fun ball ->
@@ -926,7 +943,8 @@ let move_balls(game : t_camlbrick) : unit =
 ;;
 
 (**
-  @author CASTRO MATIAS     
+  @author CASTRO MATIAS  
+  @author Sina MIRMOHAMMADI
 *)
 let handle_collisions(game : t_camlbrick) : unit =
   List.iter (fun ball ->
@@ -953,7 +971,8 @@ let handle_collisions(game : t_camlbrick) : unit =
 ;;
 
 (**
-  @author CASTRO MATIAS     
+  @author CASTRO MATIAS  
+  @author Sina MIRMOHAMMADI
 *)
 let update_game_state(game : t_camlbrick) : unit =
   (* Supprimer les balles qui sortent des limites inférieures *)
@@ -970,7 +989,8 @@ let update_game_state(game : t_camlbrick) : unit =
 ;;
 
 (**
-  @author CASTRO MATIAS     
+  @author CASTRO MATIAS 
+  @author Sina MIRMOHAMMADI
 *)
 let animate_action(game : t_camlbrick) : unit =
   if game.state = PLAYING then begin
