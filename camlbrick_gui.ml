@@ -225,13 +225,13 @@ let make_camlbrick_gui(param,game : t_camlbrick_param *t_camlbrick) :  t_camlbri
   Scale.set sc_speed (float_of_int (speed_get(game)));
   Textvariable.set lv_gamestate "Game Over";
   Textvariable.set bv_startstop "Start";
-  
+
   pack  [coe l_option];
   pack ~fill:`X [ coe sc_speed];
   pack [coe canvas] ;
   pack [coe f_option; coe b_startstop; coe lbl_gamestate; coe lb_gamestate; coe l_custom1;coe lb_custom1; coe l_custom2; coe lb_custom2] ~side:`Top;
   pack [coe f_game; coe f_menu] ~side:`Left;
-
+   
   let cbg_b_startstop_onclick game () : unit=
     if (Textvariable.get bv_startstop) = "Start"
     then ( (Textvariable.set bv_startstop "Stop"); start_onclick(game))
